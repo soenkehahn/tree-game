@@ -1,0 +1,14 @@
+digraph {
+  S -> "A woman";
+  S -> "A man";
+  S -> "A Scott,";
+  "A Scott," -> "and her dog";
+  "A Scott," -> "and his dog";
+  "A Scott," -> "and his wife";
+  "A Scott," -> "and her wife";
+  "and her dog" -> "walk into a bar";
+  "and her dog" -> "walk through the park,";
+  "walk through the park," -> "where the dog finds a weird wooden statue.";
+  "where the dog finds a weird wooden statue." -> "It looks like an ancient norse god.";
+  "where the dog finds a weird wooden statue." -> "It looks like a spaceship from an advanced civilization.";
+}
