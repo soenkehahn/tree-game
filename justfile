@@ -6,7 +6,7 @@ ci:
 bundle:
   mkdir -p dist
   cp src/frontend/index.html dist/
-  cp graph.dot dist/
+  cp story.yaml dist/
   yarn run esbuild --bundle src/frontend/index.tsx --outfile=dist/index.js
 
 serve:

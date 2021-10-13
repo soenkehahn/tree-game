@@ -39,22 +39,14 @@ async function setUpTest(
 }
 
 test("Renders the first speech snippet", async () => {
-  let { spokenSnippets } = await setUpTest(`
-    digraph g {
-      a -> b;
-    }
-  `);
+  let { spokenSnippets } = await setUpTest(`[[a]]`);
   await waitFor(() => {
     expect(spokenSnippets).toEqual(["a"]);
   });
 });
 
 test("Waits for one speech snippet to finish before synthesizing the next", async () => {
-  let { spokenSnippets, resolve } = await setUpTest(`
-    digraph g {
-      a -> b;
-    }
-  `);
+  let { spokenSnippets, resolve } = await setUpTest(`[[a]]`);
   await waitFor(() => {
     expect(spokenSnippets).toEqual(["a"]);
   });
@@ -62,130 +54,95 @@ test("Waits for one speech snippet to finish before synthesizing the next", asyn
   expect(spokenSnippets).toEqual(["a", "a"]);
 });
 
-test("Starts with one snippet on repeat", async () => {
-  let { spokenSnippets, resolve } = await setUpTest(`
-    digraph g {
-      a -> b;
-    }
-  `);
+test("Loops through first options", async () => {
+  let { spokenSnippets, resolve } = await setUpTest(`[[a], [b, n], [c, n, m]]`);
   await waitFor(() => {
     expect(spokenSnippets).toEqual(["a"]);
   });
   await resolve();
-  expect(spokenSnippets).toEqual(["a", "a"]);
+  expect(spokenSnippets).toEqual(["a", "b"]);
   await resolve();
-  expect(spokenSnippets).toEqual(["a", "a", "a"]);
+  expect(spokenSnippets).toEqual(["a", "b", "c"]);
+  await resolve();
+  expect(spokenSnippets).toEqual(["a", "b", "c", "a"]);
 });
 
-test("Pressing an arrow key will add a snippet to the path", async () => {
-  let { resolve, spokenSnippets } = await setUpTest(`
-    digraph g {
-      s -> a;
-      s -> b;
-    }
-  `);
+test("Pressing an arrow key will change an option", async () => {
+  let { spokenSnippets, resolve } = await setUpTest(`[[a, b], [c]]`);
   await waitFor(() => {
-    expect(spokenSnippets).toEqual(["s"]);
+    expect(spokenSnippets).toEqual(["a"]);
   });
-  await resolve();
-  expect(spokenSnippets).toEqual(["s", "s"]);
-  act(() => {
-    userEvent.keyboard("{arrowup}");
-  });
-  await resolve();
-  expect(spokenSnippets).toEqual(["s", "s", "a"]);
-  await resolve();
-  expect(spokenSnippets).toEqual(["s", "s", "a", "s"]);
-});
-
-test("Allows to select different snippets", async () => {
-  let { resolve, spokenSnippets } = await setUpTest(`
-    digraph g {
-      s -> up;
-      s -> down;
-    }
-  `);
   act(() => {
     userEvent.keyboard("{arrowdown}");
   });
   await resolve();
-  expect(spokenSnippets).toEqual(["s", "down"]);
+  expect(spokenSnippets).toEqual(["a", "c"]);
+  await resolve();
+  expect(spokenSnippets).toEqual(["a", "c", "b"]);
+  await resolve();
+  expect(spokenSnippets).toEqual(["a", "c", "b", "c"]);
 });
 
-test("Multiple arrow presses work", async () => {
-  let { resolve, spokenSnippets } = await setUpTest(`
-    digraph g {
-      s -> up;
-      up -> not;
-      up -> down;
-    }
-  `);
-  act(() => {
-    userEvent.keyboard("{arrowup}");
+test("Loops around options", async () => {
+  let { spokenSnippets, resolve } = await setUpTest(`[[a, b]]`);
+  await waitFor(() => {
+    expect(spokenSnippets).toEqual(["a"]);
   });
-  await resolve();
-  expect(spokenSnippets).toEqual(["s", "up"]);
   act(() => {
     userEvent.keyboard("{arrowdown}");
   });
   await resolve();
-  expect(spokenSnippets).toEqual(["s", "up", "down"]);
-});
-
-test("All arrow keys work", async () => {
-  let { resolve, spokenSnippets } = await setUpTest(`
-    digraph g {
-      s -> up;
-
-      up -> a;
-      up -> down;
-
-      down -> b;
-      down -> c;
-      down -> left;
-
-      left -> d;
-      left -> e;
-      left -> f;
-      left -> right;
-    }
-  `);
-  act(() => {
-    userEvent.keyboard("{arrowup}");
-  });
-  await resolve();
+  expect(spokenSnippets).toEqual(["a", "b"]);
   act(() => {
     userEvent.keyboard("{arrowdown}");
   });
   await resolve();
-  act(() => {
-    userEvent.keyboard("{arrowleft}");
-  });
+  expect(spokenSnippets).toEqual(["a", "b", "a"]);
   await resolve();
-  act(() => {
-    userEvent.keyboard("{arrowright}");
-  });
-  await resolve();
-  expect(spokenSnippets).toEqual(["s", "up", "down", "left", "right"]);
+  expect(spokenSnippets).toEqual(["a", "b", "a", "a"]);
 });
 
-test("Allows to change path of snippets", async () => {
-  let { resolve, spokenSnippets } = await setUpTest(`
-    digraph g {
-      s -> up;
-      s -> down;
-    }
-  `);
+test("Up and down arrow keys work", async () => {
+  let { resolve, spokenSnippets } = await setUpTest(`[[a, b, c]]`);
   act(() => {
     userEvent.keyboard("{arrowdown}");
   });
   await resolve();
-  expect(spokenSnippets).toEqual(["s", "down"]);
-  await resolve();
-  expect(spokenSnippets).toEqual(["s", "down", "s"]);
+  expect(spokenSnippets).toEqual(["a", "b"]);
   act(() => {
     userEvent.keyboard("{arrowup}");
   });
   await resolve();
-  expect(spokenSnippets).toEqual(["s", "down", "s", "up"]);
+  expect(spokenSnippets).toEqual(["a", "b", "a"]);
+  act(() => {
+    userEvent.keyboard("{arrowup}");
+  });
+  await resolve();
+  expect(spokenSnippets).toEqual(["a", "b", "a", "c"]);
+});
+
+test("Allows to change later options", async () => {
+  let { resolve, spokenSnippets } = await setUpTest(`[[a], [b, c]]`);
+  expect(spokenSnippets).toEqual(["a"]);
+  await resolve();
+  expect(spokenSnippets).toEqual(["a", "b"]);
+  act(() => {
+    userEvent.keyboard("{arrowdown}");
+  });
+  await resolve();
+  expect(spokenSnippets).toEqual(["a", "b", "a"]);
+  await resolve();
+  expect(spokenSnippets).toEqual(["a", "b", "a", "c"]);
+});
+
+test("Renders state", async () => {
+  let { resolve } = await setUpTest(`[[a, b], [c]]`);
+  expect(screen.getByTitle("main").textContent).toEqual("[a]  c");
+  act(() => {
+    userEvent.keyboard("{arrowdown}");
+  });
+  await resolve();
+  expect(screen.getByTitle("main").textContent).toEqual(" b  [c]");
+  await resolve();
+  expect(screen.getByTitle("main").textContent).toEqual("[b]  c");
 });

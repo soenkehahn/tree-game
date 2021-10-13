@@ -4,7 +4,7 @@ import { App } from "./app";
 
 const productionContext = {
   getDot: async () => {
-    let response = await fetch("/graph.dot");
+    let response = await fetch("/story.yaml");
     return response.text();
   },
   renderSpeech: (snippet: string): Promise<void> => {
