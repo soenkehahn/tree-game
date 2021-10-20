@@ -4,13 +4,13 @@ ci:
   yarn run jest --forceExit
 
 bundle:
-  mkdir -p dist
-  cp src/frontend/index.html dist/
+  yarn run parcel build src/frontend/index.html
   cp story.yaml dist/
-  yarn run esbuild --bundle src/frontend/index.tsx --outfile=dist/index.js
 
 serve:
-  (cd dist && python3 -m http.server 8080)
+  mkdir -p dist
+  cp story.yaml dist/
+  yarn run parcel src/frontend/index.html
 
 watch-tsc:
   yarn run tsc --watch

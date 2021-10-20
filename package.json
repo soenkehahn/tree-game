@@ -1,7 +1,6 @@
 {
   "name": "tree-game",
   "version": "0.0.0",
-  "main": "src/frontend/index.js",
   "author": "Sönke Hahn <soenkehahn@gmail.com>",
   "devDependencies": {
     "@testing-library/dom": "^8.7.2",
@@ -11,9 +10,9 @@
     "@types/jest": "^27.0.2",
     "@types/js-yaml": "^4.0.3",
     "@types/testing-library__user-event": "^4.2.0",
-    "esbuild": "^0.13.3",
-    "esbuild-jest": "^0.5.0",
     "jest": "^27.2.4",
+    "parcel": "^2.0.0",
+    "ts-jest": "^27.0.7",
     "typescript": "^4.4.3"
   },
   "dependencies": {
@@ -23,7 +22,7 @@
   },
   "jest": {
     "transform": {
-      "^.+\\.tsx?$": "esbuild-jest"
+      "^.+\\.tsx?$": "ts-jest"
     },
     "testEnvironment": "jsdom",
     "watchPathIgnorePatterns": [
