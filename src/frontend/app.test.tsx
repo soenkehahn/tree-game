@@ -137,12 +137,12 @@ test("Allows to change later options", async () => {
 
 test("Renders state", async () => {
   let { resolve } = await setUpTest(`[[a, b], [c]]`);
-  expect(screen.getByTitle("main").textContent).toEqual("[a]  c");
+  expect(screen.getByTitle("main").textContent?.trim()).toEqual("[a]  c");
   act(() => {
     userEvent.keyboard("{arrowdown}");
   });
   await resolve();
-  expect(screen.getByTitle("main").textContent).toEqual(" b  [c]");
+  expect(screen.getByTitle("main").textContent?.trim()).toEqual("b  [c]");
   await resolve();
-  expect(screen.getByTitle("main").textContent).toEqual("[b]  c");
+  expect(screen.getByTitle("main").textContent?.trim()).toEqual("[b]  c");
 });

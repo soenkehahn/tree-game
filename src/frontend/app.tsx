@@ -81,5 +81,19 @@ const Game = ({
     return () => document.removeEventListener(type, callback as any);
   }, []);
 
-  return <pre title="main">{state.graph.debug()}</pre>;
+  return <Scene storyGraph={state.graph} />;
 };
+
+function Scene({ storyGraph }: { storyGraph: StoryGraph }) {
+  return (
+    <div title="main">
+      {storyGraph.currentPhrase().map((options, i) => (
+        <Options {...options} key={i} />
+      ))}
+    </div>
+  );
+}
+
+function Options({ snippet, focused }: { snippet: string; focused: boolean }) {
+  return <div>{focused ? `[${snippet}]` : ` ${snippet} `} </div>;
+}

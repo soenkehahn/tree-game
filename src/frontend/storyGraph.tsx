@@ -32,6 +32,18 @@ export class StoryGraph {
     return options;
   }
 
+  currentPhrase(): Array<{ snippet: string; focused: boolean }> {
+    const result: Array<{ snippet: string; focused: boolean }> = [];
+    this.phrase.forEach(([index, options], i) => {
+      const snippet = options[index];
+      if (snippet === undefined) {
+        throw "fixme";
+      }
+      result.push({ snippet, focused: i === this.index });
+    });
+    return result;
+  }
+
   nextSnippet(): string | undefined {
     let new_current = this.index + 1;
     if (new_current >= this.phrase.length) {
