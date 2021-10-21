@@ -29,7 +29,7 @@ async function startGame(context: Context) {
 }
 
 async function setUpTest(
-  graph: string
+  story: Array<Array<string>>
 ): Promise<{ resolve: () => void; spokenSnippets: Array<string> }> {
   let spokenSnippets: Array<string> = [];
   let mutableResolve = () => {};
@@ -40,9 +40,7 @@ async function setUpTest(
     });
   };
   let testContext: Context = {
-    getDot: async () => {
-      return graph;
-    },
+    story,
     renderSpeech: (snippet: string): Promise<void> => {
       spokenSnippets.push(snippet);
       return new Promise((res) => {
@@ -55,14 +53,14 @@ async function setUpTest(
 }
 
 test("Renders the first speech snippet", async () => {
-  let { spokenSnippets } = await setUpTest(`[[a]]`);
+  let { spokenSnippets } = await setUpTest([["a"]]);
   await waitFor(() => {
     expect(spokenSnippets).toEqual(["a"]);
   });
 });
 
 test("Waits for one speech snippet to finish before synthesizing the next", async () => {
-  let { spokenSnippets, resolve } = await setUpTest(`[[a]]`);
+  let { spokenSnippets, resolve } = await setUpTest([["a"]]);
   await waitFor(() => {
     expect(spokenSnippets).toEqual(["a"]);
   });
@@ -71,7 +69,11 @@ test("Waits for one speech snippet to finish before synthesizing the next", asyn
 });
 
 test("Loops through first options", async () => {
-  let { spokenSnippets, resolve } = await setUpTest(`[[a], [b, n], [c, n, m]]`);
+  let { spokenSnippets, resolve } = await setUpTest([
+    ["a"],
+    ["b", "n"],
+    ["c", "n", "m"],
+  ]);
   await waitFor(() => {
     expect(spokenSnippets).toEqual(["a"]);
   });
@@ -84,7 +86,7 @@ test("Loops through first options", async () => {
 });
 
 test("Pressing an arrow key will change an option", async () => {
-  let { spokenSnippets, resolve } = await setUpTest(`[[a, b], [c]]`);
+  let { spokenSnippets, resolve } = await setUpTest([["a", "b"], ["c"]]);
   await waitFor(() => {
     expect(spokenSnippets).toEqual(["a"]);
   });
@@ -100,7 +102,7 @@ test("Pressing an arrow key will change an option", async () => {
 });
 
 test("Loops around options", async () => {
-  let { spokenSnippets, resolve } = await setUpTest(`[[a, b]]`);
+  let { spokenSnippets, resolve } = await setUpTest([["a", "b"]]);
   await waitFor(() => {
     expect(spokenSnippets).toEqual(["a"]);
   });
@@ -119,7 +121,7 @@ test("Loops around options", async () => {
 });
 
 test("Up and down arrow keys work", async () => {
-  let { resolve, spokenSnippets } = await setUpTest(`[[a, b, c]]`);
+  let { resolve, spokenSnippets } = await setUpTest([["a", "b", "c"]]);
   act(() => {
     userEvent.keyboard("{arrowdown}");
   });
@@ -138,7 +140,7 @@ test("Up and down arrow keys work", async () => {
 });
 
 test("Allows to change later options", async () => {
-  let { resolve, spokenSnippets } = await setUpTest(`[[a], [b, c]]`);
+  let { resolve, spokenSnippets } = await setUpTest([["a"], ["b", "c"]]);
   expect(spokenSnippets).toEqual(["a"]);
   await resolve();
   expect(spokenSnippets).toEqual(["a", "b"]);
@@ -152,7 +154,7 @@ test("Allows to change later options", async () => {
 });
 
 test("Renders state", async () => {
-  let { resolve } = await setUpTest(`[[a, b], [c]]`);
+  let { resolve } = await setUpTest([["a", "b"], ["c"]]);
   expect(lastCall(Scene)).toEqual([
     {
       phrase: [

@@ -4,7 +4,7 @@ import { StoryGraph } from "./storyGraph";
 import { Scene } from "./scene";
 
 export type Context = {
-  getDot: () => Promise<string>;
+  story: Array<Array<string>>;
   renderSpeech: (snippet: string) => Promise<void>;
 };
 
@@ -19,7 +19,7 @@ export const App = ({ context }: { context: Context }) => {
   useEffect(() => {
     (async () => {
       if (!state) {
-        const dot = await context.getDot();
+        const dot = context.story;
         const graph = new StoryGraph(dot);
         setState({
           playing: false,

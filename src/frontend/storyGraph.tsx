@@ -1,25 +1,13 @@
-import { load } from "js-yaml";
-
 export type Phrase = Array<{ snippet: string; focused: boolean }>;
 
 export class StoryGraph {
   phrase: Array<[number, Array<string>]> = [];
   index: number = -1;
 
-  constructor(dot: string) {
-    let phrase = load(dot);
-    if (!Array.isArray(phrase)) {
-      throw "fixme";
-    }
+  constructor(phrase: Array<Array<string>>) {
     for (let options of phrase) {
-      if (!Array.isArray(options)) {
-        throw "fixme";
-      }
       let stateOptions = [];
       for (let option of options) {
-        if (typeof option !== "string") {
-          throw "fixme";
-        }
         stateOptions.push(option);
       }
       this.phrase.push([0, stateOptions]);

@@ -5,11 +5,8 @@ ci:
 
 bundle:
   yarn run parcel build src/frontend/index.html
-  cp story.yaml dist/
 
 serve:
-  mkdir -p dist
-  cp story.yaml dist/
   yarn run parcel src/frontend/index.html
 
 watch-tsc:

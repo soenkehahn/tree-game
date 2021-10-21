@@ -1,12 +1,10 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { App } from "./app";
+import { App, Context } from "./app";
+import story from "./story.yaml";
 
-const productionContext = {
-  getDot: async () => {
-    let response = await fetch("/story.yaml");
-    return response.text();
-  },
+const productionContext: Context = {
+  story,
   renderSpeech: (snippet: string): Promise<void> => {
     const utterance = new SpeechSynthesisUtterance(snippet);
     if (utterance) {
