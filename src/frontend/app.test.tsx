@@ -1,9 +1,25 @@
 import "@testing-library/jest-dom";
+import { Scene } from "./scene";
 import { render, waitFor, screen } from "@testing-library/react";
 import { App, Context } from "./app";
 import userEvent from "@testing-library/user-event";
 import { act } from "react-dom/test-utils";
 import * as React from "react";
+
+jest.mock("./scene", () => {
+  return {
+    Scene: jest.fn(() => {
+      return null;
+    }),
+  };
+});
+
+beforeEach(() => jest.clearAllMocks());
+
+function lastCall(mock: any): Array<any> {
+  const calls = mock.mock.calls;
+  return calls[calls.length - 1];
+}
 
 async function startGame(context: Context) {
   render(<App {...{ context }} />);
@@ -137,12 +153,36 @@ test("Allows to change later options", async () => {
 
 test("Renders state", async () => {
   let { resolve } = await setUpTest(`[[a, b], [c]]`);
-  expect(screen.getByTitle("main").textContent?.trim()).toEqual("[a]  c");
+  expect(lastCall(Scene)).toEqual([
+    {
+      phrase: [
+        { snippet: "a", focused: true },
+        { snippet: "c", focused: false },
+      ],
+    },
+    {},
+  ]);
   act(() => {
     userEvent.keyboard("{arrowdown}");
   });
   await resolve();
-  expect(screen.getByTitle("main").textContent?.trim()).toEqual("b  [c]");
+  expect(lastCall(Scene)).toEqual([
+    {
+      phrase: [
+        { snippet: "b", focused: false },
+        { snippet: "c", focused: true },
+      ],
+    },
+    {},
+  ]);
   await resolve();
-  expect(screen.getByTitle("main").textContent?.trim()).toEqual("[b]  c");
+  expect(lastCall(Scene)).toEqual([
+    {
+      phrase: [
+        { snippet: "b", focused: true },
+        { snippet: "c", focused: false },
+      ],
+    },
+    {},
+  ]);
 });

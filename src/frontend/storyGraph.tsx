@@ -1,5 +1,7 @@
 import { load } from "js-yaml";
 
+export type Phrase = Array<{ snippet: string; focused: boolean }>;
+
 export class StoryGraph {
   phrase: Array<[number, Array<string>]> = [];
   index: number = -1;
@@ -32,8 +34,8 @@ export class StoryGraph {
     return options;
   }
 
-  currentPhrase(): Array<{ snippet: string; focused: boolean }> {
-    const result: Array<{ snippet: string; focused: boolean }> = [];
+  currentPhrase(): Phrase {
+    const result: Phrase = [];
     this.phrase.forEach(([index, options], i) => {
       const snippet = options[index];
       if (snippet === undefined) {

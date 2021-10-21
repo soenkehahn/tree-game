@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useState, useEffect } from "react";
 import { StoryGraph } from "./storyGraph";
+import { Scene } from "./scene";
 
 export type Context = {
   getDot: () => Promise<string>;
@@ -81,19 +82,5 @@ const Game = ({
     return () => document.removeEventListener(type, callback as any);
   }, []);
 
-  return <Scene storyGraph={state.graph} />;
+  return <Scene phrase={state.graph.currentPhrase()} />;
 };
-
-function Scene({ storyGraph }: { storyGraph: StoryGraph }) {
-  return (
-    <div title="main">
-      {storyGraph.currentPhrase().map((options, i) => (
-        <Options {...options} key={i} />
-      ))}
-    </div>
-  );
-}
-
-function Options({ snippet, focused }: { snippet: string; focused: boolean }) {
-  return <div>{focused ? `[${snippet}]` : ` ${snippet} `} </div>;
-}
