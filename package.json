@@ -4,6 +4,7 @@
   "author": "Sönke Hahn <soenkehahn@gmail.com>",
   "devDependencies": {
     "@parcel/transformer-yaml": "^2.0.0",
+    "@svgr/cli": "^5.5.0",
     "@swc/core": "^1.2.101",
     "@swc/jest": "^0.2.5",
     "@testing-library/dom": "^8.7.2",

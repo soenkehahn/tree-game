@@ -1,12 +1,17 @@
-ci:
-  yarn
+ci: setup svg-to-typescript
   yarn run tsc
   yarn run jest --forceExit
 
-bundle:
+setup:
+  yarn
+
+svg-to-typescript:
+  yarn run svgr --typescript src/frontend/svgs/*.svg --out-dir src/frontend/svgs/
+
+bundle: svg-to-typescript
   yarn run parcel build src/frontend/index.html
 
-serve:
+serve: svg-to-typescript
   yarn run parcel src/frontend/index.html
 
 watch-tsc:
