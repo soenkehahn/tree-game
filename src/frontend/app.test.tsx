@@ -30,7 +30,7 @@ async function startGame(context: Context) {
 
 async function setUpTest(
   story: Array<Array<string>>
-): Promise<{ resolve: () => void; spokenSnippets: Array<string> }> {
+): Promise<{ resolve: () => Promise<void>; spokenSnippets: Array<string> }> {
   let spokenSnippets: Array<string> = [];
   let mutableResolve = () => {};
   let resolve = async () => {
