@@ -24,8 +24,15 @@ jobs:
 
       - uses: actions/checkout@v2
 
-      - name: Setup
-        run: just setup
-
       - name: Ci
         run: just ci
+
+      - name: Bundle
+        run: just bundle
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        if: ${{ github.ref == 'refs/heads/main' }}
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public

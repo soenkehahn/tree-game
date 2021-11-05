@@ -1,15 +1,20 @@
-ci: setup svg-to-typescript
+ci: setup
   yarn run tsc
   yarn run jest --forceExit
 
-setup:
+setup: && svg-to-typescript
   yarn
 
 svg-to-typescript:
   yarn run svgr --typescript src/frontend/svgs/*.svg --out-dir src/frontend/svgs/
 
-bundle: svg-to-typescript
-  yarn run parcel build src/frontend/index.html
+bundle: setup
+  rm public -rf
+  yarn run parcel \
+    build src/frontend/index.html \
+    --no-source-maps \
+    --dist-dir public \
+    --public-url https://soenkehahn.github.io/tree-game/
 
 serve: svg-to-typescript
   yarn run parcel src/frontend/index.html
