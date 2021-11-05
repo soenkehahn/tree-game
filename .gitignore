@@ -1,5 +1,6 @@
+/.parcel-cache/
+/dist/
 /graph.pdf
 /node_modules/
-/dist/
-/.parcel-cache/
+/public/
 /src/frontend/svgs/*.tsx
