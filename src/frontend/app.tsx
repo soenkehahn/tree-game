@@ -6,7 +6,7 @@ import { Scene } from "./scene";
 export type Context = {
   story: Array<Array<string>>;
   renderSpeech: (snippet: string) => Promise<void>;
-  cancelSpeech: () => Promise<void>;
+  cancelSpeech: () => void;
 };
 
 type State = {
@@ -75,7 +75,6 @@ const Game = ({
           }));
           await context.renderSpeech(snippet);
           setState((state: State) => {
-            console.log(state.cancelling);
             return {
               ...state,
               playing: false,

@@ -18,7 +18,7 @@ const productionContext: Context = {
       return Promise.resolve();
     }
   },
-  cancelSpeech: async () => {
+  cancelSpeech: () => {
     window.speechSynthesis.cancel();
   },
 };

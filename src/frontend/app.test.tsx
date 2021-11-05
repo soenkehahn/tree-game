@@ -48,16 +48,22 @@ async function setUpTest(
         mutableResolve = res;
       });
     },
-    cancelSpeech: async () => {
+    cancelSpeech: () => {
       if (withCancellations) {
         spokenSnippets.push("cancelled");
       }
       mutableResolve();
-      await null;
     },
   };
   await startGame(testContext);
   return { resolve, spokenSnippets };
+}
+
+async function pressKey(key: string): Promise<void> {
+  await act(async () => {
+    userEvent.keyboard(`{${key}}`);
+    await null;
+  });
 }
 
 test("Renders the first speech snippet", async () => {
@@ -98,10 +104,7 @@ test("Pressing an arrow key will change an option", async () => {
   await waitFor(() => {
     expect(spokenSnippets).toEqual(["a"]);
   });
-  act(() => {
-    userEvent.keyboard("{arrowdown}");
-  });
-  await resolve();
+  await pressKey("arrowdown");
   expect(spokenSnippets).toEqual(["a", "b"]);
   await resolve();
   expect(spokenSnippets).toEqual(["a", "b", "c"]);
@@ -116,36 +119,21 @@ test("Loops around options", async () => {
   await waitFor(() => {
     expect(spokenSnippets).toEqual(["a"]);
   });
-  act(() => {
-    userEvent.keyboard("{arrowdown}");
-  });
-  await resolve();
+  await pressKey("arrowdown");
   expect(spokenSnippets).toEqual(["a", "b"]);
-  act(() => {
-    userEvent.keyboard("{arrowdown}");
-  });
-  await resolve();
+  await pressKey("arrowdown");
   expect(spokenSnippets).toEqual(["a", "b", "a"]);
   await resolve();
   expect(spokenSnippets).toEqual(["a", "b", "a", "a"]);
 });
 
 test("Up and down arrow keys work", async () => {
-  let { resolve, spokenSnippets } = await setUpTest([["a", "b", "c"]]);
-  act(() => {
-    userEvent.keyboard("{arrowdown}");
-  });
-  await resolve();
+  let { spokenSnippets } = await setUpTest([["a", "b", "c"]]);
+  await pressKey("arrowdown");
   expect(spokenSnippets).toEqual(["a", "b"]);
-  act(() => {
-    userEvent.keyboard("{arrowup}");
-  });
-  await resolve();
+  await pressKey("arrowup");
   expect(spokenSnippets).toEqual(["a", "b", "a"]);
-  act(() => {
-    userEvent.keyboard("{arrowup}");
-  });
-  await resolve();
+  await pressKey("arrowup");
   expect(spokenSnippets).toEqual(["a", "b", "a", "c"]);
 });
 
@@ -154,10 +142,7 @@ test("Allows to change later options", async () => {
   expect(spokenSnippets).toEqual(["a"]);
   await resolve();
   expect(spokenSnippets).toEqual(["a", "b"]);
-  act(() => {
-    userEvent.keyboard("{arrowdown}");
-  });
-  await resolve();
+  await pressKey("arrowdown");
   expect(spokenSnippets).toEqual(["a", "b", "c"]);
   await resolve();
   expect(spokenSnippets).toEqual(["a", "b", "c", "a"]);
@@ -176,10 +161,7 @@ test("Renders state", async () => {
     },
     {},
   ]);
-  act(() => {
-    userEvent.keyboard("{arrowdown}");
-  });
-  await resolve();
+  await pressKey("arrowdown");
   expect(lastCall(Scene)).toEqual([
     {
       phrase: [
@@ -204,9 +186,7 @@ test("Renders state", async () => {
 test("Cancels current spoken snippets and restarts speaking the new choice", async () => {
   let { resolve, spokenSnippets } = await setUpTest([["a", "b"], ["c"]], true);
   expect(spokenSnippets).toEqual(["a"]);
-  await act(async () => {
-    userEvent.keyboard("{arrowdown}");
-  });
+  await pressKey("arrowdown");
   expect(spokenSnippets).toEqual(["a", "cancelled", "b"]);
   await resolve();
   expect(spokenSnippets).toEqual(["a", "cancelled", "b", "c"]);
@@ -215,10 +195,7 @@ test("Cancels current spoken snippets and restarts speaking the new choice", asy
 test("does not switch to next option when cancelling", async () => {
   let { spokenSnippets } = await setUpTest([["a", "b"], ["c"]], true);
   expect(spokenSnippets).toEqual(["a"]);
-  await act(async () => {
-    userEvent.keyboard("{arrowdown}");
-  });
-  // fixme: uncomment
+  await pressKey("arrowdown");
   expect(spokenSnippets).toEqual(["a", "cancelled", "b"]);
   expect(lastCall(Scene)).toEqual([
     {
