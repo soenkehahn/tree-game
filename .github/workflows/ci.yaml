@@ -1,0 +1,38 @@
+name: Ci
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "*"
+  pull_request: {}
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  all:
+    name: All
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install just
+        uses: extractions/setup-just@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/checkout@v2
+
+      - name: Ci
+        run: just ci
+
+      - name: Bundle
+        run: just bundle
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        if: ${{ github.ref == 'refs/heads/main' }}
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
