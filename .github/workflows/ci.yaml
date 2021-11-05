@@ -1,0 +1,26 @@
+name: Ci
+
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - "*"
+  pull_request: {}
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  all:
+    name: All
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup
+        run: just setup
+
+      - name: Ci
+        run: just ci
