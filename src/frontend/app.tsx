@@ -6,10 +6,12 @@ import { Scene } from "./scene";
 export type Context = {
   story: Array<Array<string>>;
   renderSpeech: (snippet: string) => Promise<void>;
+  cancelSpeech: () => Promise<void>;
 };
 
 type State = {
   playing: boolean;
+  cancelling: boolean;
   graph: StoryGraph;
 };
 
@@ -23,6 +25,7 @@ export const App = ({ context }: { context: Context }) => {
         const graph = new StoryGraph(dot);
         setState({
           playing: false,
+          cancelling: false,
           graph,
         });
       }
@@ -52,7 +55,17 @@ const Game = ({
 
   useEffect(() => {
     if (!state.playing) {
-      let snippet = state.graph.nextSnippet();
+      let snippet;
+      if (state.cancelling) {
+        // throw "huhu";
+        snippet = state.graph.currentSnippet();
+        setState((state: State) => ({
+          ...state,
+          cancelling: false,
+        }));
+      } else {
+        snippet = state.graph.nextSnippet();
+      }
       if (snippet) {
         (async () => {
           setState((state: State) => ({
@@ -61,10 +74,13 @@ const Game = ({
             graph: state.graph,
           }));
           await context.renderSpeech(snippet);
-          setState((state: State) => ({
-            ...state,
-            playing: false,
-          }));
+          setState((state: State) => {
+            console.log(state.cancelling);
+            return {
+              ...state,
+              playing: false,
+            };
+          });
         })();
       }
     }
@@ -73,8 +89,10 @@ const Game = ({
   useEffect(() => {
     const callback = (event: KeyboardEvent) => {
       state.graph.handleInput(event.key);
+      context.cancelSpeech();
+      // fixme: arrow function?
       setState((state) => {
-        return { ...state, graph: state.graph };
+        return { ...state, graph: state.graph, cancelling: true };
       });
     };
     let type = "keydown";

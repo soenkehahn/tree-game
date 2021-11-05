@@ -1,4 +1,7 @@
 - - "Me"
+  - "You"
+  - "They"
+  - "Ancient Greece"
 - - "and my cat"
   - "and my pet ferret"
   - "and my mother"
@@ -6,13 +9,13 @@
 - - "went on a roadtrip in the midwest"
   - "got into an accident."
   - "were walking through the park"
-- - "when I ran into my mother"
-  - "when it started raining like crazy"
-  - "when an ufo landed right in front of us"
-  - "when he caught the scent of something"
-- - "that made him bark and hide behind my legs"
-  - "and he started to sniff and sniff and wag his tail"
-  - "and ran away into the bushes."
+# - - "when I ran into my mother"
+#   - "when it started raining like crazy"
+#   - "when an ufo landed right in front of us"
+#   - "when he caught the scent of something"
+# - - "that made him bark and hide behind my legs"
+#   - "and he started to sniff and sniff and wag his tail"
+#   - "and ran away into the bushes."
 # He found something in there and dragged it out.
 # I didn't get a good look at it,
 # since he was chewing on it,

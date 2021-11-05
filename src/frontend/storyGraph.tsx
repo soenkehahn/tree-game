@@ -34,6 +34,11 @@ export class StoryGraph {
     return result;
   }
 
+  currentSnippet(): string | undefined {
+    let options = this.currentOptions();
+    return options[1][options[0]];
+  }
+
   nextSnippet(): string | undefined {
     let new_current = this.index + 1;
     if (new_current >= this.phrase.length) {

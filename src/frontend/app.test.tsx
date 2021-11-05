@@ -29,7 +29,8 @@ async function startGame(context: Context) {
 }
 
 async function setUpTest(
-  story: Array<Array<string>>
+  story: Array<Array<string>>,
+  withCancellations: boolean = false
 ): Promise<{ resolve: () => Promise<void>; spokenSnippets: Array<string> }> {
   let spokenSnippets: Array<string> = [];
   let mutableResolve = () => {};
@@ -46,6 +47,13 @@ async function setUpTest(
       return new Promise((res) => {
         mutableResolve = res;
       });
+    },
+    cancelSpeech: async () => {
+      if (withCancellations) {
+        spokenSnippets.push("cancelled");
+      }
+      mutableResolve();
+      await null;
     },
   };
   await startGame(testContext);
@@ -94,11 +102,13 @@ test("Pressing an arrow key will change an option", async () => {
     userEvent.keyboard("{arrowdown}");
   });
   await resolve();
-  expect(spokenSnippets).toEqual(["a", "c"]);
+  expect(spokenSnippets).toEqual(["a", "b"]);
   await resolve();
-  expect(spokenSnippets).toEqual(["a", "c", "b"]);
+  expect(spokenSnippets).toEqual(["a", "b", "c"]);
   await resolve();
-  expect(spokenSnippets).toEqual(["a", "c", "b", "c"]);
+  expect(spokenSnippets).toEqual(["a", "b", "c", "b"]);
+  await resolve();
+  expect(spokenSnippets).toEqual(["a", "b", "c", "b", "c"]);
 });
 
 test("Loops around options", async () => {
@@ -148,9 +158,11 @@ test("Allows to change later options", async () => {
     userEvent.keyboard("{arrowdown}");
   });
   await resolve();
-  expect(spokenSnippets).toEqual(["a", "b", "a"]);
+  expect(spokenSnippets).toEqual(["a", "b", "c"]);
   await resolve();
-  expect(spokenSnippets).toEqual(["a", "b", "a", "c"]);
+  expect(spokenSnippets).toEqual(["a", "b", "c", "a"]);
+  await resolve();
+  expect(spokenSnippets).toEqual(["a", "b", "c", "a", "c"]);
 });
 
 test("Renders state", async () => {
@@ -171,13 +183,43 @@ test("Renders state", async () => {
   expect(lastCall(Scene)).toEqual([
     {
       phrase: [
+        { snippet: "b", focused: true },
+        { snippet: "c", focused: false },
+      ],
+    },
+    {},
+  ]);
+  await resolve();
+  expect(lastCall(Scene)).toEqual([
+    {
+      phrase: [
         { snippet: "b", focused: false },
         { snippet: "c", focused: true },
       ],
     },
     {},
   ]);
+});
+
+test("Cancels current spoken snippets and restarts speaking the new choice", async () => {
+  let { resolve, spokenSnippets } = await setUpTest([["a", "b"], ["c"]], true);
+  expect(spokenSnippets).toEqual(["a"]);
+  await act(async () => {
+    userEvent.keyboard("{arrowdown}");
+  });
+  expect(spokenSnippets).toEqual(["a", "cancelled", "b"]);
   await resolve();
+  expect(spokenSnippets).toEqual(["a", "cancelled", "b", "c"]);
+});
+
+test("does not switch to next option when cancelling", async () => {
+  let { spokenSnippets } = await setUpTest([["a", "b"], ["c"]], true);
+  expect(spokenSnippets).toEqual(["a"]);
+  await act(async () => {
+    userEvent.keyboard("{arrowdown}");
+  });
+  // fixme: uncomment
+  expect(spokenSnippets).toEqual(["a", "cancelled", "b"]);
   expect(lastCall(Scene)).toEqual([
     {
       phrase: [
