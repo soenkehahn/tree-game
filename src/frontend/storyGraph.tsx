@@ -1,5 +1,3 @@
-export type Phrase = Array<{ snippet: string; focused: boolean }>;
-
 export class StoryGraph {
   phrase: Array<[number, Array<string>]> = [];
   index: number = -1;
@@ -20,18 +18,6 @@ export class StoryGraph {
       throw "fixme";
     }
     return options;
-  }
-
-  currentPhrase(): Phrase {
-    const result: Phrase = [];
-    this.phrase.forEach(([index, options], i) => {
-      const snippet = options[index];
-      if (snippet === undefined) {
-        throw "fixme";
-      }
-      result.push({ snippet, focused: i === this.index });
-    });
-    return result;
   }
 
   nextSnippet(): string | undefined {
@@ -60,6 +46,18 @@ export class StoryGraph {
     current[0] = index;
   }
 
+  toUiValues(): UiValues {
+    const result: UiValues = [];
+    this.phrase.forEach(([index, options], i) => {
+      const snippet = options[index];
+      if (snippet === undefined) {
+        throw "fixme";
+      }
+      result.push({ snippet, focused: i === this.index });
+    });
+    return result;
+  }
+
   debug(): string {
     let result = "";
     this.phrase.forEach((options, index) => {
@@ -73,3 +71,5 @@ export class StoryGraph {
     return result.trimEnd();
   }
 }
+
+export type UiValues = Array<{ snippet: string; focused: boolean }>;

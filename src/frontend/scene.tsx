@@ -1,10 +1,10 @@
 import * as React from "react";
-import { Phrase } from "./storyGraph";
+import { UiValues } from "./storyGraph";
 import { CSSProperties } from "react";
 import Up from "./svgs/Up";
 import Down from "./svgs/Down";
 
-export function Scene({ phrase }: { phrase: Phrase }) {
+export function Scene({ phrase }: { phrase: UiValues }) {
   return (
     <div style={sceneStyle}>
       {phrase.map((options, i) => (
