@@ -38,9 +38,9 @@ export class StoryGraph {
   nextSnippet(): string | undefined {
     if (!this.cancelling) {
       this.index = this.index + 1;
-    }
-    if (this.index >= this.phrase.length) {
-      this.index = 0;
+      if (this.index >= this.phrase.length) {
+        this.index = 0;
+      }
     }
     this.cancelling = false;
     let options = this.currentOptions();
