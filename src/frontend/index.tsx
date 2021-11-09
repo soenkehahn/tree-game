@@ -18,6 +18,9 @@ const productionContext: Context = {
       return Promise.resolve();
     }
   },
+  cancelSpeech: () => {
+    window.speechSynthesis.cancel();
+  },
 };
 
 ReactDOM.render(
