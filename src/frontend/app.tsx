@@ -11,7 +11,6 @@ export type Context = {
 
 type State = {
   playing: boolean;
-  cancelling: boolean;
   graph: StoryGraph;
 };
 
@@ -19,17 +18,14 @@ export const App = ({ context }: { context: Context }) => {
   let [state, setState] = useState<null | State>(null);
 
   useEffect(() => {
-    (async () => {
-      if (!state) {
-        const dot = context.story;
-        const graph = new StoryGraph(dot);
-        setState({
-          playing: false,
-          cancelling: false,
-          graph,
-        });
-      }
-    })();
+    if (!state) {
+      const dot = context.story;
+      const graph = new StoryGraph(dot);
+      setState({
+        playing: false,
+        graph,
+      });
+    }
   }, []);
 
   let [started, setStarted] = useState(false);
@@ -55,23 +51,12 @@ const Game = ({
 
   useEffect(() => {
     if (!state.playing) {
-      let snippet;
-      if (state.cancelling) {
-        // throw "huhu";
-        snippet = state.graph.currentSnippet();
-        setState((state: State) => ({
-          ...state,
-          cancelling: false,
-        }));
-      } else {
-        snippet = state.graph.nextSnippet();
-      }
+      let snippet = state.graph.nextSnippet();
       if (snippet) {
         (async () => {
           setState((state: State) => ({
             ...state,
             playing: true,
-            graph: state.graph,
           }));
           await context.renderSpeech(snippet);
           setState((state: State) => {
@@ -89,10 +74,7 @@ const Game = ({
     const callback = (event: KeyboardEvent) => {
       state.graph.handleInput(event.key);
       context.cancelSpeech();
-      // fixme: arrow function?
-      setState((state) => {
-        return { ...state, graph: state.graph, cancelling: true };
-      });
+      setState((state) => ({ ...state, graph: state.graph }));
     };
     let type = "keydown";
     document.addEventListener(type, callback as any);

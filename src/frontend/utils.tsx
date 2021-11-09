@@ -6,3 +6,9 @@ export function trace<T>(t: T): T {
   console.log(t);
   return t;
 }
+
+export function assert(condition: boolean) {
+  if (!condition) {
+    throw `assertion failed`;
+  }
+}
