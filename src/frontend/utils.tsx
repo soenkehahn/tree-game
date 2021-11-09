@@ -3,7 +3,7 @@ export function wait(length: number) {
 }
 
 export function trace<T>(t: T): T {
-  console.log(t);
+  console.log(`trace: ${t}`);
   return t;
 }
 
