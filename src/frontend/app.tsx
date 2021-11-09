@@ -6,6 +6,7 @@ import { Scene } from "./scene";
 export type Context = {
   story: Array<Array<string>>;
   renderSpeech: (snippet: string) => Promise<void>;
+  cancelSpeech: () => void;
 };
 
 type State = {
@@ -17,16 +18,14 @@ export const App = ({ context }: { context: Context }) => {
   let [state, setState] = useState<null | State>(null);
 
   useEffect(() => {
-    (async () => {
-      if (!state) {
-        const dot = context.story;
-        const graph = new StoryGraph(dot);
-        setState({
-          playing: false,
-          graph,
-        });
-      }
-    })();
+    if (!state) {
+      const dot = context.story;
+      const graph = new StoryGraph(dot);
+      setState({
+        playing: false,
+        graph,
+      });
+    }
   }, []);
 
   let [started, setStarted] = useState(false);
@@ -58,13 +57,14 @@ const Game = ({
           setState((state: State) => ({
             ...state,
             playing: true,
-            graph: state.graph,
           }));
           await context.renderSpeech(snippet);
-          setState((state: State) => ({
-            ...state,
-            playing: false,
-          }));
+          setState((state: State) => {
+            return {
+              ...state,
+              playing: false,
+            };
+          });
         })();
       }
     }
@@ -73,9 +73,8 @@ const Game = ({
   useEffect(() => {
     const callback = (event: KeyboardEvent) => {
       state.graph.handleInput(event.key);
-      setState((state) => {
-        return { ...state, graph: state.graph };
-      });
+      context.cancelSpeech();
+      setState((state) => ({ ...state, graph: state.graph }));
     };
     let type = "keydown";
     document.addEventListener(type, callback as any);

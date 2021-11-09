@@ -3,6 +3,7 @@ export type Phrase = Array<{ snippet: string; focused: boolean }>;
 export class StoryGraph {
   phrase: Array<[number, Array<string>]> = [];
   index: number = -1;
+  cancelling: boolean = false;
 
   constructor(phrase: Array<Array<string>>) {
     for (let options of phrase) {
@@ -17,7 +18,7 @@ export class StoryGraph {
   currentOptions(): [number, Array<string>] {
     let options = this.phrase[this.index];
     if (options === undefined) {
-      throw "fixme";
+      throw `fixme: options undefined: ${this.index}`;
     }
     return options;
   }
@@ -35,11 +36,13 @@ export class StoryGraph {
   }
 
   nextSnippet(): string | undefined {
-    let new_current = this.index + 1;
-    if (new_current >= this.phrase.length) {
-      new_current = 0;
+    if (!this.cancelling) {
+      this.index = this.index + 1;
+      if (this.index >= this.phrase.length) {
+        this.index = 0;
+      }
     }
-    this.index = new_current;
+    this.cancelling = false;
     let options = this.currentOptions();
     return options[1][options[0]];
   }
@@ -58,6 +61,7 @@ export class StoryGraph {
       index = options.length - 1;
     }
     current[0] = index;
+    this.cancelling = true;
   }
 
   debug(): string {
