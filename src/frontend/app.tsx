@@ -81,5 +81,5 @@ const Game = ({
     return () => document.removeEventListener(type, callback as any);
   }, []);
 
-  return <Scene phrase={state.graph.currentPhrase()} />;
+  return <Scene phrase={state.graph.toUiValues()} />;
 };
