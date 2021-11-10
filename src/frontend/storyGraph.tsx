@@ -22,6 +22,17 @@ export class StoryGraph {
     this.nextLevel();
   }
 
+  nextLevel() {
+    let next = this.restLevels.shift();
+    if (next === undefined) {
+      this.state = undefined;
+      return false;
+    } else {
+      this.state = this.toLevelState(next);
+      return true;
+    }
+  }
+
   toLevelState(input: {
     options: Array<Array<string>>;
     goal: string;
@@ -40,17 +51,6 @@ export class StoryGraph {
       index: -1,
       cancelling: false,
     };
-  }
-
-  nextLevel() {
-    let next = this.restLevels.shift();
-    if (next === undefined) {
-      this.state = undefined;
-      return false;
-    } else {
-      this.state = this.toLevelState(next);
-      return true;
-    }
   }
 
   isCorrect(): boolean {
