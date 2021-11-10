@@ -5,7 +5,7 @@ import { App, Context } from "./app";
 import userEvent from "@testing-library/user-event";
 import { act } from "react-dom/test-utils";
 import * as React from "react";
-import { Story } from "./storyGraph";
+import { Level } from "./storyGraph";
 
 jest.mock("./scene", () => {
   return {
@@ -29,7 +29,7 @@ async function startGame(context: Context) {
   });
 }
 
-async function setUpTest(story: Story): Promise<{
+async function setUpTest(levels: Array<Level>): Promise<{
   resolve: () => Promise<void>;
   getSnippets: () => Array<string>;
 }> {
@@ -47,7 +47,7 @@ async function setUpTest(story: Story): Promise<{
     });
   };
   let testContext: Context = {
-    story,
+    levels,
     renderSpeech: (snippet: string): Promise<void> => {
       snippets.push(snippet);
       return new Promise((res) => {

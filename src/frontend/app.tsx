@@ -1,10 +1,10 @@
 import * as React from "react";
 import { useState, useEffect } from "react";
-import { StoryGraph, Story } from "./storyGraph";
+import { StoryGraph, Level } from "./storyGraph";
 import { Scene } from "./scene";
 
 export type Context = {
-  story: Story;
+  levels: Array<Level>;
   renderSpeech: (snippet: string) => Promise<void>;
   cancelSpeech: () => void;
 };
@@ -20,8 +20,7 @@ export const App = ({ context }: { context: Context }) => {
 
   useEffect(() => {
     if (!state) {
-      const dot = context.story;
-      const graph = new StoryGraph(dot);
+      const graph = new StoryGraph(context.levels);
       setState({
         playing: false,
         graph,

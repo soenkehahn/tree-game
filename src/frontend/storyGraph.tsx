@@ -1,9 +1,29 @@
 // import { trace } from "./utils";
 
-export type Story = Array<{
+export type Level = {
   options: Array<Array<string>>;
   goal: string;
-}>;
+};
+
+function toLevelState(input: {
+  options: Array<Array<string>>;
+  goal: string;
+}): LevelState {
+  let phrase: Array<[number, Array<string>]> = [];
+  for (let options of input.options) {
+    let stateOptions = [];
+    for (let option of options) {
+      stateOptions.push(option);
+    }
+    phrase.push([0, stateOptions]);
+  }
+  return {
+    goal: input.goal,
+    phrase,
+    index: -1,
+    cancelling: false,
+  };
+}
 
 type LevelState = {
   goal: string;
@@ -14,9 +34,9 @@ type LevelState = {
 
 export class StoryGraph {
   state: LevelState | undefined;
-  restLevels: Story;
+  restLevels: Array<Level>;
 
-  constructor(story: Story) {
+  constructor(story: Array<Level>) {
     this.state = undefined;
     this.restLevels = story;
     this.nextLevel();
@@ -28,29 +48,9 @@ export class StoryGraph {
       this.state = undefined;
       return false;
     } else {
-      this.state = this.toLevelState(next);
+      this.state = toLevelState(next);
       return true;
     }
-  }
-
-  toLevelState(input: {
-    options: Array<Array<string>>;
-    goal: string;
-  }): LevelState {
-    let phrase: Array<[number, Array<string>]> = [];
-    for (let options of input.options) {
-      let stateOptions = [];
-      for (let option of options) {
-        stateOptions.push(option);
-      }
-      phrase.push([0, stateOptions]);
-    }
-    return {
-      goal: input.goal,
-      phrase,
-      index: -1,
-      cancelling: false,
-    };
   }
 
   isCorrect(): boolean {
