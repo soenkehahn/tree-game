@@ -1,10 +1,10 @@
 import * as React from "react";
 import { useState, useEffect } from "react";
-import { StoryGraph } from "./storyGraph";
+import { StoryGraph, Story } from "./storyGraph";
 import { Scene } from "./scene";
 
 export type Context = {
-  story: Array<Array<string>>;
+  story: Story;
   renderSpeech: (snippet: string) => Promise<void>;
   cancelSpeech: () => void;
 };
@@ -12,6 +12,7 @@ export type Context = {
 type State = {
   playing: boolean;
   graph: StoryGraph;
+  done: boolean;
 };
 
 export const App = ({ context }: { context: Context }) => {
@@ -24,6 +25,7 @@ export const App = ({ context }: { context: Context }) => {
       setState({
         playing: false,
         graph,
+        done: false,
       });
     }
   }, []);
@@ -50,21 +52,21 @@ const Game = ({
   let [state, setState] = useState(initialState);
 
   useEffect(() => {
-    if (!state.playing) {
+    if (!state.playing && !state.done) {
       let snippet = state.graph.nextSnippet();
-      if (snippet) {
+      if (snippet === "end of game") {
+        setState((state: State) => ({ ...state, done: true }));
+      } else {
         (async () => {
           setState((state: State) => ({
             ...state,
             playing: true,
           }));
           await context.renderSpeech(snippet);
-          setState((state: State) => {
-            return {
-              ...state,
-              playing: false,
-            };
-          });
+          setState((state: State) => ({
+            ...state,
+            playing: false,
+          }));
         })();
       }
     }

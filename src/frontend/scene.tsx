@@ -5,6 +5,9 @@ import Up from "./svgs/Up";
 import Down from "./svgs/Down";
 
 export function Scene({ phrase }: { phrase: UiValues }) {
+  if (phrase === "end of game") {
+    return <div>The End</div>;
+  }
   return (
     <div style={sceneStyle}>
       {phrase.map((options, i) => (

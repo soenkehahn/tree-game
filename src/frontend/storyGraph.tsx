@@ -1,40 +1,103 @@
-export class StoryGraph {
-  phrase: Array<[number, Array<string>]> = [];
-  index: number = -1;
-  cancelling: boolean = false;
+// import { trace } from "./utils";
 
-  constructor(phrase: Array<Array<string>>) {
-    for (let options of phrase) {
+export type Story = Array<{
+  options: Array<Array<string>>;
+  goal: string;
+}>;
+
+type LevelState = {
+  goal: string;
+  phrase: Array<[number, Array<string>]>;
+  index: number;
+  cancelling: boolean;
+};
+
+export class StoryGraph {
+  state: LevelState | undefined;
+  restLevels: Story;
+
+  constructor(story: Story) {
+    this.state = undefined;
+    this.restLevels = story;
+    this.nextLevel();
+  }
+
+  toLevelState(input: {
+    options: Array<Array<string>>;
+    goal: string;
+  }): LevelState {
+    let phrase: Array<[number, Array<string>]> = [];
+    for (let options of input.options) {
       let stateOptions = [];
       for (let option of options) {
         stateOptions.push(option);
       }
-      this.phrase.push([0, stateOptions]);
+      phrase.push([0, stateOptions]);
+    }
+    return {
+      goal: input.goal,
+      phrase,
+      index: -1,
+      cancelling: false,
+    };
+  }
+
+  nextLevel() {
+    let next = this.restLevels.shift();
+    if (next === undefined) {
+      this.state = undefined;
+      return false;
+    } else {
+      this.state = this.toLevelState(next);
+      return true;
     }
   }
 
-  currentOptions(): [number, Array<string>] {
-    let options = this.phrase[this.index];
+  isCorrect(): boolean {
+    const uiValues = this.toUiValues();
+    if (uiValues === "end of game" || this.state === undefined) {
+      return false;
+    }
+    return this.state.goal === uiValues.map((x) => x.snippet).join(" ");
+  }
+
+  currentOptions(state: LevelState): [number, Array<string>] {
+    let options = state.phrase[state.index];
     if (options === undefined) {
-      throw `fixme: options undefined: ${this.index}`;
+      throw `fixme: options undefined: ${state.index}`;
     }
     return options;
   }
 
-  nextSnippet(): string | undefined {
-    if (!this.cancelling) {
-      this.index = this.index + 1;
-      if (this.index >= this.phrase.length) {
-        this.index = 0;
+  nextSnippet(): string | "end of game" {
+    if (this.state === undefined) {
+      return "end of game";
+    }
+    if (!this.state.cancelling) {
+      this.state.index = this.state.index + 1;
+      if (this.state.index >= this.state.phrase.length) {
+        if (this.isCorrect()) {
+          if (!this.nextLevel()) {
+            return "end of game";
+          }
+        }
+        this.state.index = 0;
       }
     }
-    this.cancelling = false;
-    let options = this.currentOptions();
-    return options[1][options[0]];
+    this.state.cancelling = false;
+    let [i, options] = this.currentOptions(this.state);
+    let result = options[i];
+    if (result === undefined) {
+      throw `fixme`;
+    }
+    return result;
   }
 
   handleInput(key: string) {
-    let current = this.currentOptions();
+    if (this.state === undefined) {
+      return;
+    }
+    let current = this.currentOptions(this.state);
     let [index, options] = current;
     if (key === "ArrowDown") {
       index = index + 1;
@@ -47,33 +110,43 @@ export class StoryGraph {
       index = options.length - 1;
     }
     current[0] = index;
-    this.cancelling = true;
+    this.state.cancelling = true;
   }
 
   toUiValues(): UiValues {
+    if (this.state === undefined) {
+      return "end of game";
+    }
     const result: UiValues = [];
-    this.phrase.forEach(([index, options], i) => {
+    for (const [i, [index, options]] of Array.from(
+      this.state.phrase.entries()
+    )) {
       const snippet = options[index];
       if (snippet === undefined) {
         throw "fixme";
       }
-      result.push({ snippet, focused: i === this.index });
-    });
+      result.push({ snippet, focused: i === this.state.index });
+    }
     return result;
   }
 
   debug(): string {
+    if (this.state === undefined) {
+      return "no levels left";
+    }
     let result = "";
-    this.phrase.forEach((options, index) => {
+    for (const [index, options] of Array.from(this.state.phrase.entries())) {
       let option = options[1][options[0]];
-      if (index === this.index) {
+      if (index === this.state.index) {
         result += `[${option}] `;
       } else {
         result += ` ${option}  `;
       }
-    });
+    }
     return result.trimEnd();
   }
 }
 
-export type UiValues = Array<{ snippet: string; focused: boolean }>;
+export type UiValues =
+  | Array<{ snippet: string; focused: boolean }>
+  | "end of game";
