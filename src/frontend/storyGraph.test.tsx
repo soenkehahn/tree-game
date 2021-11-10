@@ -27,9 +27,9 @@ test(".isCorrect() returns whether options are selected correctly", () => {
     },
   ]);
   expect(graph.isCorrect()).toEqual(false);
-  graph.nextSnippet();
+  expect(graph.nextSnippet()).toEqual("a");
   expect(graph.isCorrect()).toEqual(false);
-  graph.nextSnippet();
+  expect(graph.nextSnippet()).toEqual("c");
   expect(graph.isCorrect()).toEqual(false);
   graph.handleInput("ArrowDown");
   expect(graph.isCorrect()).toEqual(true);
