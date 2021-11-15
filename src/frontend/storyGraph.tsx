@@ -5,6 +5,13 @@ export type Level = {
   goal: string;
 };
 
+type LevelState = {
+  goal: string;
+  phrase: Array<[number, Array<string>]>;
+  index: number;
+  cancelling: boolean;
+};
+
 function toLevelState(input: {
   options: Array<Array<string>>;
   goal: string;
@@ -25,12 +32,13 @@ function toLevelState(input: {
   };
 }
 
-type LevelState = {
-  goal: string;
-  phrase: Array<[number, Array<string>]>;
-  index: number;
-  cancelling: boolean;
-};
+function currentOptions(state: LevelState): [number, Array<string>] {
+  let options = state.phrase[state.index];
+  if (options === undefined) {
+    throw `fixme: options undefined: ${state.index}`;
+  }
+  return options;
+}
 
 export class StoryGraph {
   state: LevelState | undefined;
@@ -61,14 +69,6 @@ export class StoryGraph {
     return this.state.goal === uiValues.map((x) => x.snippet).join(" ");
   }
 
-  currentOptions(state: LevelState): [number, Array<string>] {
-    let options = state.phrase[state.index];
-    if (options === undefined) {
-      throw `fixme: options undefined: ${state.index}`;
-    }
-    return options;
-  }
-
   nextSnippet(): string | "end of game" {
     if (this.state === undefined) {
       return "end of game";
@@ -85,7 +85,7 @@ export class StoryGraph {
       }
     }
     this.state.cancelling = false;
-    let [i, options] = this.currentOptions(this.state);
+    let [i, options] = currentOptions(this.state);
     let result = options[i];
     if (result === undefined) {
       throw `fixme`;
@@ -97,7 +97,7 @@ export class StoryGraph {
     if (this.state === undefined) {
       return;
     }
-    let current = this.currentOptions(this.state);
+    let current = currentOptions(this.state);
     let [index, options] = current;
     if (key === "ArrowDown") {
       index = index + 1;
