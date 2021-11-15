@@ -50,14 +50,14 @@ export class StoryGraph {
     this.nextLevel();
   }
 
-  nextLevel() {
+  nextLevel(): "no more levels" | "more levels" {
     let next = this.restLevels.shift();
     if (next === undefined) {
       this.state = undefined;
-      return false;
+      return "no more levels";
     } else {
       this.state = toLevelState(next);
-      return true;
+      return "more levels";
     }
   }
 
@@ -77,7 +77,7 @@ export class StoryGraph {
       this.state.index = this.state.index + 1;
       if (this.state.index >= this.state.phrase.length) {
         if (this.isCorrect()) {
-          if (!this.nextLevel()) {
+          if (this.nextLevel() == "no more levels") {
             return "end of game";
           }
         }
