@@ -40,6 +40,23 @@ function currentOptions(state: LevelState): [number, Array<string>] {
   return options;
 }
 
+function handleInput(state: LevelState, key: string) {
+  let current = currentOptions(state);
+  let [index, options] = current;
+  if (key === "ArrowDown") {
+    index = index + 1;
+  } else if (key === "ArrowUp") {
+    index = index - 1;
+  }
+  if (index >= options.length) {
+    index = 0;
+  } else if (index < 0) {
+    index = options.length - 1;
+  }
+  current[0] = index;
+  state.cancelling = true;
+}
+
 type LevelUi = Array<{ snippet: string; focused: boolean }>;
 
 function toLevelUi(state: LevelState): LevelUi {
@@ -111,20 +128,7 @@ export class StoryGraph {
     if (this.state === undefined) {
       return;
     }
-    let current = currentOptions(this.state);
-    let [index, options] = current;
-    if (key === "ArrowDown") {
-      index = index + 1;
-    } else if (key === "ArrowUp") {
-      index = index - 1;
-    }
-    if (index >= options.length) {
-      index = 0;
-    } else if (index < 0) {
-      index = options.length - 1;
-    }
-    current[0] = index;
-    this.state.cancelling = true;
+    handleInput(this.state, key);
   }
 
   toGameUi(): GameUi {
