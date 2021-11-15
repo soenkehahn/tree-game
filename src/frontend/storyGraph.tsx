@@ -40,6 +40,20 @@ function currentOptions(state: LevelState): [number, Array<string>] {
   return options;
 }
 
+type LevelUi = Array<{ snippet: string; focused: boolean }>;
+
+function toLevelUi(state: LevelState): LevelUi {
+  const result: GameUi = [];
+  for (const [i, [index, options]] of Array.from(state.phrase.entries())) {
+    const snippet = options[index];
+    if (snippet === undefined) {
+      throw "fixme";
+    }
+    result.push({ snippet, focused: i === state.index });
+  }
+  return result;
+}
+
 export class StoryGraph {
   state: LevelState | undefined;
   restLevels: Array<Level>;
@@ -62,7 +76,7 @@ export class StoryGraph {
   }
 
   isCorrect(): boolean {
-    const uiValues = this.toUiValues();
+    const uiValues = this.toGameUi();
     if (uiValues === "end of game" || this.state === undefined) {
       return false;
     }
@@ -113,21 +127,11 @@ export class StoryGraph {
     this.state.cancelling = true;
   }
 
-  toUiValues(): UiValues {
+  toGameUi(): GameUi {
     if (this.state === undefined) {
       return "end of game";
     }
-    const result: UiValues = [];
-    for (const [i, [index, options]] of Array.from(
-      this.state.phrase.entries()
-    )) {
-      const snippet = options[index];
-      if (snippet === undefined) {
-        throw "fixme";
-      }
-      result.push({ snippet, focused: i === this.state.index });
-    }
-    return result;
+    return toLevelUi(this.state);
   }
 
   debug(): string {
@@ -147,6 +151,4 @@ export class StoryGraph {
   }
 }
 
-export type UiValues =
-  | Array<{ snippet: string; focused: boolean }>
-  | "end of game";
+export type GameUi = LevelUi | "end of game";
