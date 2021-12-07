@@ -1,4 +1,4 @@
-import { StoryGraph } from "./storyGraph";
+import { StoryGraph, isCorrect } from "./storyGraph";
 
 test("parses stories", () => {
   let graph = new StoryGraph([
@@ -26,11 +26,11 @@ test(".isCorrect() returns whether options are selected correctly", () => {
       goal: "a d",
     },
   ]);
-  expect(graph.isCorrect()).toEqual(false);
+  expect(isCorrect(graph.state as any)).toEqual(false);
   expect(graph.nextSnippet()).toEqual("a");
-  expect(graph.isCorrect()).toEqual(false);
+  expect(isCorrect(graph.state as any)).toEqual(false);
   expect(graph.nextSnippet()).toEqual("c");
-  expect(graph.isCorrect()).toEqual(false);
+  expect(isCorrect(graph.state as any)).toEqual(false);
   graph.handleInput("ArrowDown");
-  expect(graph.isCorrect()).toEqual(true);
+  expect(isCorrect(graph.state as any)).toEqual(true);
 });

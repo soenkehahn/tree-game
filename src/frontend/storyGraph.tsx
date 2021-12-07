@@ -40,6 +40,11 @@ function currentOptions(state: LevelState): [number, Array<string>] {
   return options;
 }
 
+export function isCorrect(state: LevelState): boolean {
+  const levelUi = toLevelUi(state);
+  return state.goal === levelUi.map((x) => x.snippet).join(" ");
+}
+
 function handleInput(state: LevelState, key: string) {
   let current = currentOptions(state);
   let [index, options] = current;
@@ -92,14 +97,6 @@ export class StoryGraph {
     }
   }
 
-  isCorrect(): boolean {
-    const uiValues = this.toGameUi();
-    if (uiValues === "end of game" || this.state === undefined) {
-      return false;
-    }
-    return this.state.goal === uiValues.map((x) => x.snippet).join(" ");
-  }
-
   nextSnippet(): string | "end of game" {
     if (this.state === undefined) {
       return "end of game";
@@ -107,7 +104,7 @@ export class StoryGraph {
     if (!this.state.cancelling) {
       this.state.index = this.state.index + 1;
       if (this.state.index >= this.state.phrase.length) {
-        if (this.isCorrect()) {
+        if (isCorrect(this.state)) {
           if (this.nextLevel() == "no more levels") {
             return "end of game";
           }
