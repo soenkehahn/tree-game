@@ -1,10 +1,10 @@
 import * as React from "react";
 import { useState, useEffect } from "react";
-import { StoryGraph } from "./storyGraph";
+import { StoryGraph, Level } from "./storyGraph";
 import { Scene } from "./scene";
 
 export type Context = {
-  story: Array<Array<string>>;
+  levels: Array<Level>;
   renderSpeech: (snippet: string) => Promise<void>;
   cancelSpeech: () => void;
 };
@@ -12,6 +12,7 @@ export type Context = {
 type State = {
   playing: boolean;
   graph: StoryGraph;
+  done: boolean;
 };
 
 export const App = ({ context }: { context: Context }) => {
@@ -19,11 +20,11 @@ export const App = ({ context }: { context: Context }) => {
 
   useEffect(() => {
     if (!state) {
-      const dot = context.story;
-      const graph = new StoryGraph(dot);
+      const graph = new StoryGraph(context.levels);
       setState({
         playing: false,
         graph,
+        done: false,
       });
     }
   }, []);
@@ -50,21 +51,21 @@ const Game = ({
   let [state, setState] = useState(initialState);
 
   useEffect(() => {
-    if (!state.playing) {
+    if (!state.playing && !state.done) {
       let snippet = state.graph.nextSnippet();
-      if (snippet) {
+      if (snippet === "end of game") {
+        setState((state: State) => ({ ...state, done: true }));
+      } else {
         (async () => {
           setState((state: State) => ({
             ...state,
             playing: true,
           }));
           await context.renderSpeech(snippet);
-          setState((state: State) => {
-            return {
-              ...state,
-              playing: false,
-            };
-          });
+          setState((state: State) => ({
+            ...state,
+            playing: false,
+          }));
         })();
       }
     }
@@ -81,5 +82,5 @@ const Game = ({
     return () => document.removeEventListener(type, callback as any);
   }, []);
 
-  return <Scene phrase={state.graph.toUiValues()} />;
+  return <Scene phrase={state.graph.toGameUi()} />;
 };

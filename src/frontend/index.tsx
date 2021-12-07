@@ -1,10 +1,10 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { App, Context } from "./app";
-import story from "./story.yaml";
+import levels from "./story.yaml";
 
 const productionContext: Context = {
-  story,
+  levels,
   renderSpeech: (snippet: string): Promise<void> => {
     const utterance = new SpeechSynthesisUtterance(snippet);
     if (utterance) {

@@ -1,2 +1,5 @@
-declare const story: Array<Array<string>>;
-export default story;
+declare const levels: Array<{
+  options: Array<Array<string>>,
+  goal: string
+}>;
+export default levels;

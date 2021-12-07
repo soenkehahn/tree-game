@@ -1,22 +1,38 @@
-- - "Me"
-- - "and my cat"
-  - "and my pet ferret"
-  - "and my mother"
-  - "and my dog"
-- - "went on a roadtrip in the midwest"
-  - "got into an accident."
-  - "were walking through the park"
-- - "when I ran into my mother"
-  - "when it started raining like crazy"
-  - "when an ufo landed right in front of us"
-  - "when he caught the scent of something"
-- - "that made him bark and hide behind my legs"
-  - "and he started to sniff and sniff and wag his tail"
-  - "and ran away into the bushes."
-# He found something in there and dragged it out.
-# I didn't get a good look at it,
-# since he was chewing on it,
-# and when I reached him, he had swallowed it whole.
+- goal: Me and my dog were walking through the park when he caught the scent of something and ran away into the bushes.
+  options:
+    - - "Me"
+      - "You"
+      - "They"
+      - "Ancient Greece"
+    - - "and my cat"
+      - "and my pet ferret"
+      - "and my mother"
+      - "and my dog"
+    - - "went on a roadtrip in the midwest"
+      - "got into an accident."
+      - "were walking through the park"
+    - - "when I ran into my mother."
+      - "when it started raining like crazy."
+      - "when an ufo landed right in front of us."
+      - "when he caught the scent of something"
+    - - "that made him bark and hide behind my legs"
+      - "and he started to sniff and sniff and wag his tail"
+      - "and ran away into the bushes."
+- goal: He found something in there and dragged it out. I didn't get a good look at it, since he was chewing on it, and when I reached him, he had swallowed it whole.
+  options:
+    - - He found something in there and dragged it out.
+    - - I could see it perfectly,
+      - It smelled like rotten flesh,
+      - I didn't get a good look at it,
+      - The dress fit perfectly,
+    - - but I got a good look at it,
+      - because mother is always right,
+      - ever since the Trojan war,
+      - since he was chewing on it,
+    - - but after several attempts, I gave up.
+      - and when I reached him, he had swallowed it whole.
+      - and soon after, my cat started to purr.
+      - but at least I still kept my dignity.
 # But I could swear that it looked like a little person.
 # I mean a little statue or something like that.
 # I distinctly remember seeing weird little legs and I think also a face.

@@ -1,10 +1,13 @@
 import * as React from "react";
-import { UiValues } from "./storyGraph";
+import { GameUi } from "./storyGraph";
 import { CSSProperties } from "react";
 import Up from "./svgs/Up";
 import Down from "./svgs/Down";
 
-export function Scene({ phrase }: { phrase: UiValues }) {
+export function Scene({ phrase }: { phrase: GameUi }) {
+  if (phrase === "end of game") {
+    return <div>The End</div>;
+  }
   return (
     <div style={sceneStyle}>
       {phrase.map((options, i) => (

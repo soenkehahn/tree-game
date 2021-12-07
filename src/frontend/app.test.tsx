@@ -5,6 +5,7 @@ import { App, Context } from "./app";
 import userEvent from "@testing-library/user-event";
 import { act } from "react-dom/test-utils";
 import * as React from "react";
+import { Level } from "./storyGraph";
 
 jest.mock("./scene", () => {
   return {
@@ -28,7 +29,7 @@ async function startGame(context: Context) {
   });
 }
 
-async function setUpTest(story: Array<Array<string>>): Promise<{
+async function setUpTest(levels: Array<Level>): Promise<{
   resolve: () => Promise<void>;
   getSnippets: () => Array<string>;
 }> {
@@ -46,7 +47,7 @@ async function setUpTest(story: Array<Array<string>>): Promise<{
     });
   };
   let testContext: Context = {
-    story,
+    levels,
     renderSpeech: (snippet: string): Promise<void> => {
       snippets.push(snippet);
       return new Promise((res) => {
@@ -70,12 +71,17 @@ async function pressKey(key: string): Promise<void> {
 }
 
 test("Renders the first speech snippet", async () => {
-  let { getSnippets } = await setUpTest([["a"]]);
+  let { getSnippets } = await setUpTest([{ options: [["a"]], goal: "a" }]);
   expect(getSnippets()).toEqual(["a"]);
 });
 
 test("Waits for one speech snippet to finish before synthesizing the next", async () => {
-  let { resolve, getSnippets } = await setUpTest([["a"]]);
+  let { resolve, getSnippets } = await setUpTest([
+    {
+      options: [["a"]],
+      goal: "foo",
+    },
+  ]);
   expect(getSnippets()).toEqual(["a"]);
   await resolve();
   expect(getSnippets()).toEqual(["a"]);
@@ -83,9 +89,10 @@ test("Waits for one speech snippet to finish before synthesizing the next", asyn
 
 test("Loops through first options", async () => {
   let { resolve, getSnippets } = await setUpTest([
-    ["a"],
-    ["b", "n"],
-    ["c", "n", "m"],
+    {
+      options: [["a"], ["b", "n"], ["c", "n", "m"]],
+      goal: "a",
+    },
   ]);
   expect(getSnippets()).toEqual(["a"]);
   await resolve();
@@ -97,7 +104,12 @@ test("Loops through first options", async () => {
 });
 
 test("Pressing an arrow key will change an option", async () => {
-  let { getSnippets, resolve } = await setUpTest([["a", "b"], ["c"]]);
+  let { getSnippets, resolve } = await setUpTest([
+    {
+      options: [["a", "b"], ["c"]],
+      goal: "a",
+    },
+  ]);
   expect(getSnippets()).toEqual(["a"]);
   await pressKey("arrowdown");
   expect(getSnippets()).toEqual(["cancelled", "b"]);
@@ -108,7 +120,12 @@ test("Pressing an arrow key will change an option", async () => {
 });
 
 test("Loops around options", async () => {
-  let { resolve, getSnippets } = await setUpTest([["a", "b"]]);
+  let { resolve, getSnippets } = await setUpTest([
+    {
+      options: [["a", "b"]],
+      goal: "foo",
+    },
+  ]);
   expect(getSnippets()).toEqual(["a"]);
   await pressKey("arrowdown");
   expect(getSnippets()).toEqual(["cancelled", "b"]);
@@ -119,7 +136,12 @@ test("Loops around options", async () => {
 });
 
 test("Up and down arrow keys work", async () => {
-  let { getSnippets } = await setUpTest([["a", "b", "c"]]);
+  let { getSnippets } = await setUpTest([
+    {
+      options: [["a", "b", "c"]],
+      goal: "a",
+    },
+  ]);
   expect(getSnippets()).toEqual(["a"]);
   await pressKey("arrowdown");
   expect(getSnippets()).toEqual(["cancelled", "b"]);
@@ -130,7 +152,12 @@ test("Up and down arrow keys work", async () => {
 });
 
 test("Allows to change later options", async () => {
-  let { getSnippets, resolve } = await setUpTest([["a"], ["b", "c"]]);
+  let { getSnippets, resolve } = await setUpTest([
+    {
+      options: [["a"], ["b", "c"]],
+      goal: "a",
+    },
+  ]);
   expect(getSnippets()).toEqual(["a"]);
   await resolve();
   expect(getSnippets()).toEqual(["b"]);
@@ -143,7 +170,12 @@ test("Allows to change later options", async () => {
 });
 
 test("Renders state", async () => {
-  let { resolve } = await setUpTest([["a", "b"], ["c"]]);
+  let { resolve } = await setUpTest([
+    {
+      options: [["a", "b"], ["c"]],
+      goal: "a",
+    },
+  ]);
   expect(lastCall(Scene)).toEqual([
     {
       phrase: [
@@ -176,7 +208,12 @@ test("Renders state", async () => {
 });
 
 test("Cancels current spoken snippets and restarts speaking the new choice", async () => {
-  let { getSnippets, resolve } = await setUpTest([["a", "b"], ["c"]]);
+  let { getSnippets, resolve } = await setUpTest([
+    {
+      options: [["a", "b"], ["c"]],
+      goal: "a",
+    },
+  ]);
   expect(getSnippets()).toEqual(["a"]);
   await pressKey("arrowdown");
   expect(getSnippets()).toEqual(["cancelled", "b"]);
@@ -185,7 +222,12 @@ test("Cancels current spoken snippets and restarts speaking the new choice", asy
 });
 
 test("does not switch to next option when cancelling", async () => {
-  let { getSnippets } = await setUpTest([["a", "b"], ["c"]]);
+  let { getSnippets } = await setUpTest([
+    {
+      options: [["a", "b"], ["c"]],
+      goal: "a",
+    },
+  ]);
   expect(getSnippets()).toEqual(["a"]);
   await pressKey("arrowdown");
   expect(getSnippets()).toEqual(["cancelled", "b"]);
@@ -198,4 +240,27 @@ test("does not switch to next option when cancelling", async () => {
     },
     {},
   ]);
+});
+
+test("moves to the next level when correct options are selected", async () => {
+  let { resolve, getSnippets } = await setUpTest([
+    {
+      options: [["a", "b"], ["c"]],
+      goal: "b c",
+    },
+    {
+      options: [["next"], ["level"]],
+      goal: "next level",
+    },
+  ]);
+  await pressKey("arrowdown");
+  expect(getSnippets()).toEqual(["a", "cancelled", "b"]);
+  await resolve();
+  expect(getSnippets()).toEqual(["c"]);
+  await resolve();
+  expect(getSnippets()).toEqual(["next"]);
+  await resolve();
+  expect(getSnippets()).toEqual(["level"]);
+  await resolve();
+  expect(lastCall(Scene)).toEqual([{ phrase: "end of game" }, {}]);
 });
