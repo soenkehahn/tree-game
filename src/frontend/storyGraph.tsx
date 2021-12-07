@@ -1,5 +1,3 @@
-// import { trace } from "./utils";
-
 export type Level = {
   options: Array<Array<string>>;
   goal: string;
