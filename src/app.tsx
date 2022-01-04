@@ -8,6 +8,7 @@ export type Context = {
   renderSpeech: (snippet: string) => Promise<void>;
   cancelSpeech: () => void;
   Scene: ({ phrase }: { phrase: GameUi }) => JSX.Element;
+  errorBuzzer: () => Promise<void>;
 };
 
 type State = {
@@ -21,7 +22,7 @@ export const App = ({ context }: { context: Context }) => {
 
   useEffect(() => {
     if (!state) {
-      const graph = new StoryGraph(context.levels);
+      const graph = new StoryGraph(context);
       setState({
         playing: false,
         graph,

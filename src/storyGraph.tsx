@@ -1,3 +1,5 @@
+import { Context } from "./app";
+
 export type Level = {
   options: Array<Array<string>>;
   goal: string;
@@ -75,12 +77,14 @@ function toLevelUi(state: LevelState): LevelUi {
 }
 
 export class StoryGraph {
+  context: Context;
   state: LevelState | undefined;
   restLevels: Array<Level>;
 
-  constructor(story: Array<Level>) {
+  constructor(context: Context) {
+    this.context = context;
     this.state = undefined;
-    this.restLevels = story;
+    this.restLevels = context.levels;
     this.nextLevel();
   }
 
@@ -106,6 +110,8 @@ export class StoryGraph {
           if (this.nextLevel() == "no more levels") {
             return "end of game";
           }
+        } else {
+          this.context.errorBuzzer();
         }
         this.state.index = 0;
       }

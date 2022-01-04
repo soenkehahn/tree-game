@@ -1,0 +1,4 @@
+#!/usr/bin/env yaml-runner
+
+main: just watch-tsc
+second: just watch-tests

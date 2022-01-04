@@ -47,6 +47,12 @@ async function setUpTest(levels: Array<Level>): Promise<{
       lastSceneCall = args;
       return <div />;
     },
+    errorBuzzer: () => {
+      snippets.push("errorBuzzer");
+      return new Promise((res) => {
+        mutableResolve = res;
+      });
+    },
   };
   let lastSceneCall: null | Array<unknown> = null;
   await startGame(testContext);
@@ -74,7 +80,7 @@ test("Waits for one speech snippet to finish before synthesizing the next", asyn
   ]);
   expect(getSnippets()).toEqual(["a"]);
   await resolve();
-  expect(getSnippets()).toEqual(["a"]);
+  expect(getSnippets()).toEqual(["errorBuzzer", "a"]);
 });
 
 test("Loops through first options", async () => {
@@ -90,7 +96,7 @@ test("Loops through first options", async () => {
   await resolve();
   expect(getSnippets()).toEqual(["c"]);
   await resolve();
-  expect(getSnippets()).toEqual(["a"]);
+  expect(getSnippets()).toEqual(["errorBuzzer", "a"]);
 });
 
 test("Pressing an arrow key will change an option", async () => {
@@ -106,7 +112,7 @@ test("Pressing an arrow key will change an option", async () => {
   await resolve();
   expect(getSnippets()).toEqual(["c"]);
   await resolve();
-  expect(getSnippets()).toEqual(["b"]);
+  expect(getSnippets()).toEqual(["errorBuzzer", "b"]);
 });
 
 test("Loops around options", async () => {
@@ -122,7 +128,7 @@ test("Loops around options", async () => {
   await pressKey("arrowdown");
   expect(getSnippets()).toEqual(["cancelled", "a"]);
   await resolve();
-  expect(getSnippets()).toEqual(["a"]);
+  expect(getSnippets()).toEqual(["errorBuzzer", "a"]);
 });
 
 test("Up and down arrow keys work", async () => {
@@ -154,7 +160,7 @@ test("Allows to change later options", async () => {
   await pressKey("arrowdown");
   expect(getSnippets()).toEqual(["cancelled", "c"]);
   await resolve();
-  expect(getSnippets()).toEqual(["a"]);
+  expect(getSnippets()).toEqual(["errorBuzzer", "a"]);
   await resolve();
   expect(getSnippets()).toEqual(["c"]);
 });
@@ -230,6 +236,21 @@ test("does not switch to next option when cancelling", async () => {
     },
     {},
   ]);
+});
+
+test("plays an error buzzer when at the end of a wrong phrase", async () => {
+  let { resolve, getSnippets } = await setUpTest([
+    {
+      options: [["a", "b"], ["c"]],
+      goal: "b c",
+    },
+  ]);
+  await resolve();
+  expect(getSnippets()).toEqual(["a", "c"]);
+  await resolve();
+  expect(getSnippets()).toEqual(["errorBuzzer"]);
+  await resolve();
+  expect(getSnippets()).toEqual(["a"]);
 });
 
 test("moves to the next level when correct options are selected", async () => {
