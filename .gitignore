@@ -3,4 +3,4 @@
 /graph.pdf
 /node_modules/
 /public/
-/src/frontend/svgs/*.tsx
+/src/svgs/*.tsx

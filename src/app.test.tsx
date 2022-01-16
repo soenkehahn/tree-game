@@ -1,26 +1,10 @@
 import "@testing-library/jest-dom";
-import { Scene } from "./scene";
 import { render, waitFor, screen } from "@testing-library/react";
 import { App, Context } from "./app";
 import userEvent from "@testing-library/user-event";
 import { act } from "react-dom/test-utils";
 import * as React from "react";
 import { Level } from "./storyGraph";
-
-jest.mock("./scene", () => {
-  return {
-    Scene: jest.fn(() => {
-      return null;
-    }),
-  };
-});
-
-beforeEach(() => jest.clearAllMocks());
-
-function lastCall(mock: any): Array<any> {
-  const calls = mock.mock.calls;
-  return calls[calls.length - 1];
-}
 
 async function startGame(context: Context) {
   render(<App {...{ context }} />);
@@ -32,6 +16,7 @@ async function startGame(context: Context) {
 async function setUpTest(levels: Array<Level>): Promise<{
   resolve: () => Promise<void>;
   getSnippets: () => Array<string>;
+  lastSceneCall: () => null | Array<unknown>;
 }> {
   let snippets: Array<string> = [];
   let getSnippets = () => {
@@ -58,9 +43,14 @@ async function setUpTest(levels: Array<Level>): Promise<{
       snippets.push("cancelled");
       mutableResolve();
     },
+    Scene: (...args) => {
+      lastSceneCall = args;
+      return <div />;
+    },
   };
+  let lastSceneCall: null | Array<unknown> = null;
   await startGame(testContext);
-  return { resolve, getSnippets };
+  return { resolve, getSnippets, lastSceneCall: () => lastSceneCall };
 }
 
 async function pressKey(key: string): Promise<void> {
@@ -170,13 +160,13 @@ test("Allows to change later options", async () => {
 });
 
 test("Renders state", async () => {
-  let { resolve } = await setUpTest([
+  let { resolve, lastSceneCall } = await setUpTest([
     {
       options: [["a", "b"], ["c"]],
       goal: "a",
     },
   ]);
-  expect(lastCall(Scene)).toEqual([
+  expect(lastSceneCall()).toEqual([
     {
       phrase: [
         { snippet: "a", focused: true },
@@ -186,7 +176,7 @@ test("Renders state", async () => {
     {},
   ]);
   await pressKey("arrowdown");
-  expect(lastCall(Scene)).toEqual([
+  expect(lastSceneCall()).toEqual([
     {
       phrase: [
         { snippet: "b", focused: true },
@@ -196,7 +186,7 @@ test("Renders state", async () => {
     {},
   ]);
   await resolve();
-  expect(lastCall(Scene)).toEqual([
+  expect(lastSceneCall()).toEqual([
     {
       phrase: [
         { snippet: "b", focused: false },
@@ -222,7 +212,7 @@ test("Cancels current spoken snippets and restarts speaking the new choice", asy
 });
 
 test("does not switch to next option when cancelling", async () => {
-  let { getSnippets } = await setUpTest([
+  let { getSnippets, lastSceneCall } = await setUpTest([
     {
       options: [["a", "b"], ["c"]],
       goal: "a",
@@ -231,7 +221,7 @@ test("does not switch to next option when cancelling", async () => {
   expect(getSnippets()).toEqual(["a"]);
   await pressKey("arrowdown");
   expect(getSnippets()).toEqual(["cancelled", "b"]);
-  expect(lastCall(Scene)).toEqual([
+  expect(lastSceneCall()).toEqual([
     {
       phrase: [
         { snippet: "b", focused: true },
@@ -243,7 +233,7 @@ test("does not switch to next option when cancelling", async () => {
 });
 
 test("moves to the next level when correct options are selected", async () => {
-  let { resolve, getSnippets } = await setUpTest([
+  let { resolve, getSnippets, lastSceneCall } = await setUpTest([
     {
       options: [["a", "b"], ["c"]],
       goal: "b c",
@@ -262,5 +252,5 @@ test("moves to the next level when correct options are selected", async () => {
   await resolve();
   expect(getSnippets()).toEqual(["level"]);
   await resolve();
-  expect(lastCall(Scene)).toEqual([{ phrase: "end of game" }, {}]);
+  expect(lastSceneCall()).toEqual([{ phrase: "end of game" }, {}]);
 });

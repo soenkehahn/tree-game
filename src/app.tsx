@@ -1,12 +1,13 @@
 import * as React from "react";
+import { GameUi } from "./storyGraph";
 import { useState, useEffect } from "react";
 import { StoryGraph, Level } from "./storyGraph";
-import { Scene } from "./scene";
 
 export type Context = {
   levels: Array<Level>;
   renderSpeech: (snippet: string) => Promise<void>;
   cancelSpeech: () => void;
+  Scene: ({ phrase }: { phrase: GameUi }) => JSX.Element;
 };
 
 type State = {
@@ -82,5 +83,5 @@ const Game = ({
     return () => document.removeEventListener(type, callback as any);
   }, []);
 
-  return <Scene phrase={state.graph.toGameUi()} />;
+  return <context.Scene phrase={state.graph.toGameUi()} />;
 };

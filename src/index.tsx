@@ -2,6 +2,7 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { App, Context } from "./app";
 import levels from "./story.yaml";
+import { Scene } from "./scene";
 
 const productionContext: Context = {
   levels,
@@ -21,6 +22,7 @@ const productionContext: Context = {
   cancelSpeech: () => {
     window.speechSynthesis.cancel();
   },
+  Scene,
 };
 
 ReactDOM.render(
