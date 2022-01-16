@@ -4,7 +4,7 @@ import { CSSProperties } from "react";
 import Up from "./svgs/Up";
 import Down from "./svgs/Down";
 
-export function Scene({ phrase }: { phrase: GameUi }) {
+export function Scene({ phrase }: { phrase: GameUi }): JSX.Element {
   if (phrase === "end of game") {
     return <div>The End</div>;
   }
